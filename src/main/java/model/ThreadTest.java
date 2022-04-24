@@ -1,4 +1,6 @@
-package main;
+package model;
+
+import view.BoardGame;
 
 public class ThreadTest extends Thread {
 	
@@ -23,7 +25,6 @@ public class ThreadTest extends Thread {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				

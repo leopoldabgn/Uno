@@ -1,7 +1,10 @@
-package main;
+package model;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import view.BoardGame;
+import view.Card;
 
 public class AI extends Player
 {

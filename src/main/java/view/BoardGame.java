@@ -1,4 +1,4 @@
-package main;
+package view;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -11,11 +11,13 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-
+import model.AI;
+import model.Player;
 
 public class BoardGame extends JPanel
 {
 	private static final long serialVersionUID = 1L;
+	public static String RESOURCES_FOLDER = "src/resources/";
 
 	private AI[] bots;
 	private Player player;

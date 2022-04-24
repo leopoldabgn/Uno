@@ -1,4 +1,4 @@
-package main;
+package view;
 
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
@@ -200,7 +200,7 @@ public class Deck extends JPanel
 		{
 			for(int i=0;i<10;i++)
 			{
-				cards[j*10+i] = new Card(new ImageIcon("cards/"+colors[j]+"_"+i+".png").getImage(), 
+				cards[j*10+i] = new Card(new ImageIcon(BoardGame.RESOURCES_FOLDER+"cards/"+colors[j]+"_"+i+".png").getImage(), 
 									colors[j].charAt(0), i);
 			}
 		}
@@ -209,7 +209,7 @@ public class Deck extends JPanel
 		{
 			for(int i=0;i<3;i++)
 			{
-				cards[40+j*3+i] = new Card(new ImageIcon("cards/"+colors[j]+"_"+specials[i]+".png").getImage(), 
+				cards[40+j*3+i] = new Card(new ImageIcon(BoardGame.RESOURCES_FOLDER+"cards/"+colors[j]+"_"+specials[i]+".png").getImage(), 
 									specials[i], colors[j].charAt(0));
 			}
 		}

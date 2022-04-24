@@ -1,4 +1,8 @@
-package main;
+package model;
+
+import view.BoardGame;
+import view.Card;
+import view.Deck;
 
 public class Player 
 {

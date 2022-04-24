@@ -1,4 +1,4 @@
-package main;
+package view;
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -136,7 +136,7 @@ public class Card extends JPanel
 	
 	public static Image getBackCard()
 	{
-		return new ImageIcon("cards/backCard.png").getImage();
+		return new ImageIcon(BoardGame.RESOURCES_FOLDER+"cards/backCard.png").getImage();
 	}
 	
 	public void setCardVisible(boolean bool)
