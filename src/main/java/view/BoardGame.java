@@ -26,8 +26,8 @@ public class BoardGame extends JPanel
 	private JLabel playTurn = new JLabel("Player : 0");
 	public static Color BACKGROUND_COLOR = new Color(176, 255, 233);
 	public static int WIDTH = 1000, HEIGHT = 600, PLAY_TURN = 0;
-	private int sens = 1, cardsToAdd = 0;
-	
+	private int sens = 1, cardsToAdd = 0, skipPlayers = 0;
+
 	public BoardGame()
 	{
 		super();
@@ -66,8 +66,12 @@ public class BoardGame extends JPanel
 		validate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				dropToBin();
+				if(PLAY_TURN > 0 && bots[PLAY_TURN-1].getDeck().getLength() == 0) {
+					bots[PLAY_TURN-1].setFinish(true);
+					changeTurn();
+				}
 				changeTurn();
-				if(PLAY_TURN != 0 && bots[PLAY_TURN-1].getDeck().getLength() != 0)
+				if(PLAY_TURN != 0)
 				{
 					//(new ThreadTest(bots, self)).run();
 					/*
@@ -83,14 +87,16 @@ public class BoardGame extends JPanel
 						changeTurn();
 					}*/
 						
+					if(bots[PLAY_TURN-1].getDeck().getLength() == 0) {
+						bots[PLAY_TURN-1].setFinish(true);
+						return;
+					}
+
 					if(!bots[PLAY_TURN-1].play())
 					{
 						dropCard();
 						bots[PLAY_TURN-1].play();
 					}
-					
-					if(bots[PLAY_TURN-1].getDeck().getLength() == 0)
-						bots[PLAY_TURN-1].setFinish(true);
 				}
 				else
 				{
@@ -175,6 +181,10 @@ public class BoardGame extends JPanel
 			if(((cards.length+1)%2)== 0)
 				sens *= -1;
 		}
+		else if(type.equals("forbidden"))
+		{
+			skipPlayers = cards.length;
+		}
 		else if(type.equals("+2"))
 		{
 			cardsToAdd = cards.length > 1 ? 
@@ -216,11 +226,8 @@ public class BoardGame extends JPanel
 			break;
 		case "+4":
 			break;
+		case "forbidden":
 		case "sens":
-			if(checkColor(cards, binCard.getColor()) ||
-			   temp.getType() == binCard.getType())
-				return true;
-			break;
 		default:
 			if(checkColor(cards, binCard.getColor()) ||
 			   temp.getType() == binCard.getType())
@@ -244,11 +251,8 @@ public class BoardGame extends JPanel
 			break;
 		case "colorChanger":
 			break;
+		case "forbidden":
 		case "sens":
-			if(card.getType() == binCard.getType() ||
-			   card.getColor() == binCard.getColor())
-				return true;
-			break;
 		default:
 			if(card.getType() == binCard.getType() ||
 			   card.getColor() == binCard.getColor())
@@ -320,35 +324,52 @@ public class BoardGame extends JPanel
 				return false;
 		return true;
 	}
-	
+
 	public void changeTurn()
 	{
-		//System.out.println(sens+"xxx");
+		changeTurn(false);
+	}
+
+	public void changeTurn(boolean force)
+	{
 		if(PLAY_TURN == 0)
 		{
-			if(player.getDeck().getLastLength() != player.getDeck().getLength()
+			if(force || player.getDeck().getLastLength() != player.getDeck().getLength()
 			   || player.hasFinished())
 			{
 				if(sens == 1)
 					PLAY_TURN += sens;
 				else
 					PLAY_TURN = 3;
-				player.getDeck().refreshLastLength();
+				if(!force)
+					player.getDeck().refreshLastLength();
 			}
 		}
 		else if(PLAY_TURN < 3)
 		{
+
 			PLAY_TURN += sens;
 		}
 		else
 		{
-			
 			if(sens == 1)
 				PLAY_TURN = 0;
 			else
 				PLAY_TURN -= 1;
 		}
-		
+
+
+		if((PLAY_TURN == 0 && player.hasFinished()) || (PLAY_TURN > 0 && bots[PLAY_TURN-1].hasFinished())) {
+			changeTurn(true);
+		}
+
+		if(skipPlayers > 0)
+		{
+			skipPlayers--;
+			changeTurn(true);
+			return;
+		}
+
 		playTurn.setText("Player : "+PLAY_TURN);
 	}
 	

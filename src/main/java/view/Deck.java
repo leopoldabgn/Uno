@@ -192,7 +192,7 @@ public class Deck extends JPanel
 	
 	public static Card[] getDefaultDeck()
 	{
-		Card[] cards = new Card[52]; // Pour l'instant, juste 16 cartes.
+		Card[] cards = new Card[52];
 		String[] colors = new String[] {"red", "yellow", "green", "blue"};
 		String[] specials = new String[] {"sens", "forbidden", "+2", "+4", "colorChanger"};
 		
