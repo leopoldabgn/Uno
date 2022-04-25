@@ -27,6 +27,7 @@ public class BoardGame extends JPanel
 	public static Color BACKGROUND_COLOR = new Color(176, 255, 233);
 	public static int WIDTH = 1000, HEIGHT = 600, PLAY_TURN = 0;
 	private int sens = 1, cardsToAdd = 0, skipPlayers = 0;
+	private boolean twoMoreCards, fourMoreCards;
 
 	public BoardGame()
 	{
@@ -106,8 +107,8 @@ public class BoardGame extends JPanel
 						changeTurn();
 					}
 				}
-					
-				
+
+				penalityCards();
 			}
 		});
 		
@@ -134,12 +135,7 @@ public class BoardGame extends JPanel
 	
 	public void dropToBin()
 	{
-		Deck deck;
-		if(PLAY_TURN == 0)
-			deck = player.getDeck();
-		else
-			deck = bots[PLAY_TURN-1].getDeck();
-		
+		Deck deck = getActualPlayer().getDeck();
 		Card binCard = binDeck.getFirstCard();
 		Card[] cards = sortCards(deck.getUpCards(), binCard);
 		if(cards == null)
@@ -187,28 +183,10 @@ public class BoardGame extends JPanel
 		}
 		else if(type.equals("+2"))
 		{
-			cardsToAdd = cards.length > 1 ? 
-					 	 cardsToAdd+cards.length*2:cardsToAdd+2;
-			if(PLAY_TURN == 3)
-			{
-				
-			}
-			else
-			{
-				if(checkTypes(bots[PLAY_TURN-1].getDeck().getCards(),"+2"))
-				{
-					
-				}
-				else
-				{
-					for(int i=0;i<cardsToAdd;i++)
-						dropCard();
-				}
-			}
+			cardsToAdd += cards.length*2;
+			twoMoreCards = true;
 		}
 	}
-	
-	
 	
 	public boolean checkCards(Card[] cards, Card binCard)
 	{
@@ -217,6 +195,10 @@ public class BoardGame extends JPanel
 		else if(cards.length >= 2 && !checkTypes(cards))
 			return false;
 		Card temp = cards[0];
+		if(twoMoreCards && !temp.getType().equals("+2"))
+			return false;
+		else if(fourMoreCards && !temp.getType().equals("+4"))
+			return false;
 		switch(temp.getType())
 		{
 		case "NUMBER":
@@ -225,14 +207,12 @@ public class BoardGame extends JPanel
 					return true;
 			break;
 		case "+4":
-			break;
+			return true;
+		case "+2":
 		case "forbidden":
 		case "sens":
 		default:
-			if(checkColor(cards, binCard.getColor()) ||
-			   temp.getType() == binCard.getType())
-				return true;
-			break;
+			return checkColor(cards, binCard.getColor()) || temp.getType() == binCard.getType();
 		}
 			
 		return false;
@@ -347,7 +327,6 @@ public class BoardGame extends JPanel
 		}
 		else if(PLAY_TURN < 3)
 		{
-
 			PLAY_TURN += sens;
 		}
 		else
@@ -357,7 +336,6 @@ public class BoardGame extends JPanel
 			else
 				PLAY_TURN -= 1;
 		}
-
 
 		if((PLAY_TURN == 0 && player.hasFinished()) || (PLAY_TURN > 0 && bots[PLAY_TURN-1].hasFinished())) {
 			changeTurn(true);
@@ -373,6 +351,56 @@ public class BoardGame extends JPanel
 		playTurn.setText("Player : "+PLAY_TURN);
 	}
 	
+	public boolean hasCard(Player player, String type) {
+		Deck deck = player.getDeck();
+		for(Card card : deck.getCards())
+			if(card.getType().equals(type))
+				return true;
+		return false;
+	}
+
+	public void penalityCards() {
+		if(getActualPlayer().hasFinished())
+			return;
+		Deck deck = getActualPlayer().getDeck();
+		if(twoMoreCards) {
+			if(!hasCard(getActualPlayer(), "+2")) {
+				for(int i=0;i<cardsToAdd;i++) {
+					Card card = gameDeck.getAndDelLastCard();
+					if(getActualPlayer() instanceof AI)
+						card.setCardVisible(false);
+					if(card == null)
+						break;
+					deck.addCard(card);
+				}
+				deck.setLastLength(deck.getLength());
+				twoMoreCards = false;
+				cardsToAdd = 0;
+			}
+		}
+		else if(fourMoreCards) {
+			if(!hasCard(getActualPlayer(), "+4")) {
+				for(int i=0;i<cardsToAdd;i++) {
+					Card card = gameDeck.getAndDelLastCard();
+					if(getActualPlayer() instanceof AI)
+						card.setCardVisible(false);
+					if(card == null)
+						break;
+					deck.addCard(card);
+				}
+				fourMoreCards = false;
+				cardsToAdd = 0;
+				changeTurn(); // Pas le droit de jouer quand on se prend un +4
+			}
+		}
+	}
+
+	public Player getActualPlayer() {
+		if(PLAY_TURN == 0)
+			return player;
+		return bots[PLAY_TURN-1];
+	}
+
 	public Deck getBinDeck()
 	{
 		return binDeck;
