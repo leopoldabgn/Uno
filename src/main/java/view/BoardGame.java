@@ -66,69 +66,60 @@ public class BoardGame extends JPanel
 		
 		validate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				dropToBin();
-				if(PLAY_TURN > 0 && bots[PLAY_TURN-1].getDeck().getLength() == 0) {
-					bots[PLAY_TURN-1].setFinish(true);
-					changeTurn();
-				}
-				changeTurn();
-				if(PLAY_TURN != 0)
+				if(getActualPlayer().isPlayer())
+					dropToBin(); // if(dropToBin())... changeTurn
+				
+				if(getActualPlayer().isAI())
 				{
-					//(new ThreadTest(bots, self)).run();
-					/*
-					for(int i=0;i<3;i++)
-					{
-						if(!bots[i].play())
-						{
-							dropCard();
-							bots[i].play();
-						}
-						
-						dropToBin();
-						changeTurn();
-					}*/
-						
-					if(bots[PLAY_TURN-1].getDeck().getLength() == 0) {
-						bots[PLAY_TURN-1].setFinish(true);
-						return;
-					}
-
-					if(!bots[PLAY_TURN-1].play())
+					//(new ThreadTest(bots, BoardGame.this)).run();
+					AI bot = (AI)getActualPlayer();
+					if(!bot.play())
 					{
 						dropCard();
-						bots[PLAY_TURN-1].play();
+						bot.play();
 					}
-				}
-				else
-				{
-					if(player.getDeck().getLength() == 0)
-					{
-						player.setFinish(true);
-						changeTurn();
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
 					}
+					dropToBin();
 				}
 
+				if(getActualPlayer().getDeck().getLength() == 0)
+					getActualPlayer().setFinish(true);
+
+				changeTurn();
 				penalityCards();
+				if(getActualPlayer().isAI()) {
+					new Thread(new Runnable() {
+						public void run() {
+							validate.doClick();
+						}
+					}).start();
+				}
 			}
 		});
 		
 	}
-	
+
 	public void dropCard()
 	{
+		if(getActualPlayer().canPlay())
+			return;
 		Card card = gameDeck.getAndDelLastCard();
 		if(card != null)
 		{
-			if(PLAY_TURN == 0)
+			if(getActualPlayer().isPlayer())
 			{
 				player.getDeck().addCard(card);
 				player.getDeck().setLastLength(999);
 			}
 			else
 			{
-				card.setCardVisible(bots[PLAY_TURN-1].getDeck().
+				card.setCardVisible(getActualPlayer().getDeck().
 								getFirstCard().isCardVisible());
-				bots[PLAY_TURN-1].getDeck().addCard(card);
+				getActualPlayer().getDeck().addCard(card);
 			}
 		}
 	}
@@ -220,6 +211,10 @@ public class BoardGame extends JPanel
 	
 	public boolean checkCards(Card card, Card binCard)
 	{
+		if(twoMoreCards && !card.getType().equals("+2"))
+			return false;
+		else if(fourMoreCards && !card.getType().equals("+4"))
+			return false;
 		switch(card.getType())
 		{
 		case "NUMBER":
@@ -312,34 +307,24 @@ public class BoardGame extends JPanel
 
 	public void changeTurn(boolean force)
 	{
-		if(PLAY_TURN == 0)
-		{
-			if(force || player.getDeck().getLastLength() != player.getDeck().getLength()
-			   || player.hasFinished())
-			{
-				if(sens == 1)
-					PLAY_TURN += sens;
-				else
-					PLAY_TURN = 3;
-				if(!force)
-					player.getDeck().refreshLastLength();
-			}
-		}
-		else if(PLAY_TURN < 3)
-		{
-			PLAY_TURN += sens;
-		}
-		else
-		{
-			if(sens == 1)
-				PLAY_TURN = 0;
-			else
-				PLAY_TURN -= 1;
+		Player player = getActualPlayer();
+		if(player.isPlayer()) {
+			if(!force && player.getDeck().getLastLength() == player.getDeck().getLength()
+			&& !player.hasFinished())
+				return;
 		}
 
-		if((PLAY_TURN == 0 && player.hasFinished()) || (PLAY_TURN > 0 && bots[PLAY_TURN-1].hasFinished())) {
+		PLAY_TURN += sens;
+		PLAY_TURN %= 4;
+		if(PLAY_TURN < 0)
+			PLAY_TURN += 4;
+		
+		player = getActualPlayer();
+		if(player.isPlayer() && !force)
+			player.getDeck().refreshLastLength();
+
+		if(player.hasFinished())
 			changeTurn(true);
-		}
 
 		if(skipPlayers > 0)
 		{
@@ -367,10 +352,10 @@ public class BoardGame extends JPanel
 			if(!hasCard(getActualPlayer(), "+2")) {
 				for(int i=0;i<cardsToAdd;i++) {
 					Card card = gameDeck.getAndDelLastCard();
+					if(card == null) // Vider la binDeck(poubelle) dans le gameDeck(pioche) ?
+						break;
 					if(getActualPlayer() instanceof AI)
 						card.setCardVisible(false);
-					if(card == null)
-						break;
 					deck.addCard(card);
 				}
 				deck.setLastLength(deck.getLength());

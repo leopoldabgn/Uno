@@ -213,7 +213,11 @@ public class Deck extends JPanel
 									specials[i], colors[j].charAt(0));
 			}
 		}
-		
+		/*
+		for(int i=52;i<cards.length;i++) {
+			cards[i] = new Card(new ImageIcon(BoardGame.RESOURCES_FOLDER+"cards/+4.png").getImage(), "+4", (char)0);
+		}
+		*/
 		return cards;
 	}
 	
@@ -321,6 +325,8 @@ public class Deck extends JPanel
 			return null;
 		Card card = cards.get(cards.size()-1);
 		cards.remove(cards.size()-1);
+		if(cards.size() == 0 && type == 0) // type = 0 -> gameDeck (pioche)
+			cards = toList(scrambleDeck(getDefaultDeck()));
 		return card;
 	}
 	

@@ -8,7 +8,6 @@ import view.Card;
 
 public class AI extends Player
 {
-	
 	public static int COUNTER = 0;
 	
 	public AI(BoardGame board, char position)

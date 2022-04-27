@@ -32,6 +32,19 @@ public class Player
 		this.deck = new Deck(7, deck, position, visible);
 	}
 	
+	public boolean canPlay() {
+		if(hasFinished())
+			return false;
+		Card binCard = board.getBinDeck().getFirstCard();
+		Card[] cards = deck.getCards();
+		if(cards == null || cards.length == 0)
+			return false;
+		for(Card c : cards)
+			if(board.checkCards(c, binCard))
+				return true;
+		return false;
+	}
+
 	public Deck getDeck()
 	{
 		return this.deck;
@@ -51,4 +64,13 @@ public class Player
 	{
 		this.finish = finish;
 	}
+
+	public boolean isPlayer() {
+		return getClass().equals(Player.class);
+	}
+
+	public boolean isAI() {
+		return (this instanceof AI);
+	}
+
 }
