@@ -24,7 +24,7 @@ public class Deck extends JPanel
 		super();
 		this.board = board;
 		this.type = type;
-		this.setBackground(BoardGame.BACKGROUND_COLOR);
+		this.setOpaque(false);
 		position = 0;
 		if(type == 0)
 			setupGameDeck();
@@ -35,7 +35,7 @@ public class Deck extends JPanel
 	public Deck(int nb, Card[] gameDeck)
 	{
 		super();
-		this.setBackground(BoardGame.BACKGROUND_COLOR);
+		this.setOpaque(false);
 		cards = toList(gameDeck);
 		this.lastLength = cards.size();
 		setupDeck();		
@@ -44,7 +44,7 @@ public class Deck extends JPanel
 	public Deck(int nb, Card[] gameDeck, char position, boolean visible)
 	{
 		super();
-		this.setBackground(BoardGame.BACKGROUND_COLOR);
+		this.setOpaque(false);
 		this.position = position;
 		cards = toList(gameDeck);
 		this.lastLength = cards.size();
@@ -136,7 +136,6 @@ public class Deck extends JPanel
 			break;
 		case 'L':
 			this.setBounds(20, h, h+Card.COEFF_UP, getCoeff(cards.size(), 1)*cards.size()+h);
-			//this.setBackground(Color.RED);
 			for(Card card : cards)
 			{
 				if(card.isUp())
@@ -192,7 +191,7 @@ public class Deck extends JPanel
 	
 	public static Card[] getDefaultDeck()
 	{
-		Card[] cards = new Card[52];
+		Card[] cards = new Card[52]; // 56 if +4 cards
 		String[] colors = new String[] {"red", "yellow", "green", "blue"};
 		String[] specials = new String[] {"sens", "forbidden", "+2", "+4", "colorChanger"};
 		

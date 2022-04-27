@@ -8,11 +8,12 @@ import view.Card;
 
 public class AI extends Player
 {
-	public static int COUNTER = 0;
-	
+	public static int sleepTime = 1;
+
 	public AI(BoardGame board, char position)
 	{
-		super(board, position, false); // "ROBOT "+COUNTER; COUNTER++;
+		super(board, position, false);
+		this.name = "ORDI "+(nextNb-1);
 	}
 	
 	public boolean play()
@@ -61,5 +62,5 @@ public class AI extends Player
 		
 		return list;
 	}
-	
+
 }

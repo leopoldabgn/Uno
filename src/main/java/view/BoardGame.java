@@ -2,11 +2,16 @@ package view;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,8 +24,10 @@ public class BoardGame extends JPanel
 	private static final long serialVersionUID = 1L;
 	public static String RESOURCES_FOLDER = "src/resources/";
 
-	private AI[] bots;
-	private Player player;
+	private Window window;
+
+	private Player[] players;
+	private int nextRank = 1;
 	private JButton validate = new JButton("GO");
 	private Deck gameDeck, binDeck;
 	private JLabel playTurn = new JLabel("Player : 0");
@@ -29,23 +36,22 @@ public class BoardGame extends JPanel
 	private int sens = 1, cardsToAdd = 0, skipPlayers = 0;
 	private boolean twoMoreCards, fourMoreCards;
 
-	public BoardGame()
+	public BoardGame(Window window)
 	{
-		super();
+		this.window = window;
 		this.setLayout(null);
 		
 		this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		this.setBackground(BACKGROUND_COLOR);
 		
 		gameDeck = new Deck(this, 0);
+
+		players = new Player[4];
 		
-		player = new Player(this);
-		
-		bots = new AI[3];
-		
-		bots[0] = new AI(this, 'L');
-		bots[1] = new AI(this, 'U');
-		bots[2] = new AI(this, 'R');
+		players[0] = new AI(this, 'B');
+		players[1] = new AI(this, 'L');
+		players[2] = new AI(this, 'U');
+		players[3] = new AI(this, 'R');
 		
 		binDeck = new Deck(this, 1);
 		
@@ -54,9 +60,8 @@ public class BoardGame extends JPanel
 		validate.setBounds(WIDTH/2 - 30, HEIGHT/2 - 30, 60, 60);
 		playTurn.setBounds(120, 0, 100, 100);
 		
-		this.add(player.getDeck());
-		for(int i=0;i<3;i++)
-			this.add(bots[i].getDeck());
+		for(int i=0;i<4;i++)
+			this.add(players[i].getDeck());
 		this.add(gameDeck);
 		this.add(binDeck);
 		this.add(validate);
@@ -79,15 +84,22 @@ public class BoardGame extends JPanel
 						bot.play();
 					}
 					try {
-						Thread.sleep(1000);
+						Thread.sleep(AI.sleepTime);
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
 					dropToBin();
 				}
 
-				if(getActualPlayer().getDeck().getLength() == 0)
-					getActualPlayer().setFinish(true);
+				if(getActualPlayer().getDeck().getLength() == 0) {
+					getActualPlayer().setFinish(nextRank++);
+					if(nextRank == 4) {
+						changeTurn();
+						getActualPlayer().setFinish(nextRank);
+						window.setRankingView(players);
+						return;
+					}
+				}
 
 				changeTurn();
 				penalityCards();
@@ -103,6 +115,19 @@ public class BoardGame extends JPanel
 		
 	}
 
+	@Override
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		BufferedImage backImg = null;
+		try {
+			backImg = ImageIO.read(new File(RESOURCES_FOLDER+"uno_background.jpg"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if(backImg != null)
+			g.drawImage(backImg, 0, 0, getWidth(), getHeight(), null);
+	}
+	
 	public void dropCard()
 	{
 		if(getActualPlayer().canPlay())
@@ -112,8 +137,8 @@ public class BoardGame extends JPanel
 		{
 			if(getActualPlayer().isPlayer())
 			{
-				player.getDeck().addCard(card);
-				player.getDeck().setLastLength(999);
+				getActualPlayer().getDeck().addCard(card);
+				getActualPlayer().getDeck().setLastLength(999);
 			}
 			else
 			{
@@ -177,6 +202,11 @@ public class BoardGame extends JPanel
 			cardsToAdd += cards.length*2;
 			twoMoreCards = true;
 		}
+		else if(type.equals("+4"))
+		{
+			cardsToAdd += cards.length*4;
+			fourMoreCards = true;
+		}
 	}
 	
 	public boolean checkCards(Card[] cards, Card binCard)
@@ -223,7 +253,7 @@ public class BoardGame extends JPanel
 				return true;
 			break;
 		case "+4":
-			break;
+			return true;
 		case "colorChanger":
 			break;
 		case "forbidden":
@@ -367,10 +397,10 @@ public class BoardGame extends JPanel
 			if(!hasCard(getActualPlayer(), "+4")) {
 				for(int i=0;i<cardsToAdd;i++) {
 					Card card = gameDeck.getAndDelLastCard();
-					if(getActualPlayer() instanceof AI)
-						card.setCardVisible(false);
 					if(card == null)
 						break;
+					if(getActualPlayer() instanceof AI)
+						card.setCardVisible(false);
 					deck.addCard(card);
 				}
 				fourMoreCards = false;
@@ -381,9 +411,7 @@ public class BoardGame extends JPanel
 	}
 
 	public Player getActualPlayer() {
-		if(PLAY_TURN == 0)
-			return player;
-		return bots[PLAY_TURN-1];
+		return players[PLAY_TURN];
 	}
 
 	public Deck getBinDeck()

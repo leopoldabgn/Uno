@@ -6,13 +6,16 @@ import view.Deck;
 
 public class Player 
 {
-	
+	protected static int nextNb = 1;
+
 	private BoardGame board;
 	private Deck deck;
-	private boolean finish = false;
+	protected String name = "Player";
+	private int rank = -1;
 	
 	public Player(BoardGame board)
 	{
+		this.name += " "+(nextNb++);
 		this.board = board;
 		Card[] deck = Deck.getSomeCards(7, board.getGameDeck(), true);
 		this.deck = new Deck(7, deck);
@@ -20,6 +23,7 @@ public class Player
 	
 	public Player(BoardGame board, char position)
 	{
+		this.name += " "+(nextNb++);
 		this.board = board;
 		Card[] deck = Deck.getSomeCards(7, board.getGameDeck(), true);
 		this.deck = new Deck(7, deck, position, true);
@@ -27,6 +31,7 @@ public class Player
 	
 	public Player(BoardGame board, char position, boolean visible)
 	{
+		this.name += " "+(nextNb++);
 		this.board = board;
 		Card[] deck = Deck.getSomeCards(7, board.getGameDeck(), visible);
 		this.deck = new Deck(7, deck, position, visible);
@@ -57,20 +62,36 @@ public class Player
 
 	public boolean hasFinished() 
 	{
-		return finish;
+		return rank != -1;
 	}
 
-	public void setFinish(boolean finish) 
+	public boolean isPlayer()
 	{
-		this.finish = finish;
-	}
-
-	public boolean isPlayer() {
 		return getClass().equals(Player.class);
 	}
 
-	public boolean isAI() {
+	public boolean isAI()
+	{
 		return (this instanceof AI);
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setFinish(int rank) {
+		setRank(rank);
+	}
+
+	public void setRank(int rank)
+	{
+		this.rank = rank;
+	}
+
+	public int getRank()
+	{
+		return rank;
 	}
 
 }
