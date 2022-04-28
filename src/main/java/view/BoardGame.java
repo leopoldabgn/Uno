@@ -2,16 +2,11 @@ package view;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,14 +25,20 @@ public class BoardGame extends JPanel
 	private int nextRank = 1;
 	private JButton validate = new JButton("GO");
 	private Deck gameDeck, binDeck;
-	private JLabel playTurn = new JLabel("Player : 0");
+	private JLabel playTurn = new JLabel("");
 	public static Color BACKGROUND_COLOR = new Color(176, 255, 233);
 	public static int WIDTH = 1000, HEIGHT = 600, PLAY_TURN = 0;
 	private int sens = 1, cardsToAdd = 0, skipPlayers = 0;
 	private boolean twoMoreCards, fourMoreCards;
 
+	public BoardGame(Window window, Player[] players)
+	{
+		this(window);
+	}
+
 	public BoardGame(Window window)
 	{
+		setOpaque(false);
 		this.window = window;
 		this.setLayout(null);
 		
@@ -45,14 +46,14 @@ public class BoardGame extends JPanel
 		this.setBackground(BACKGROUND_COLOR);
 		
 		gameDeck = new Deck(this, 0);
-
+/*
 		players = new Player[4];
-		
-		players[0] = new AI(this, 'B');
-		players[1] = new AI(this, 'L');
-		players[2] = new AI(this, 'U');
-		players[3] = new AI(this, 'R');
-		
+		char[] pos = new char[]{'B', 'L', 'U', 'R'};
+		for(int i=0;i<players.length;i++) {
+			players[i] = new AI(this, pos[i]);
+			this.add(players[i].getDeck());
+		}
+*/
 		binDeck = new Deck(this, 1);
 		
 		binDeck.addCard(Deck.getSomeCards(1, gameDeck, true)[0]);
@@ -60,8 +61,6 @@ public class BoardGame extends JPanel
 		validate.setBounds(WIDTH/2 - 30, HEIGHT/2 - 30, 60, 60);
 		playTurn.setBounds(120, 0, 100, 100);
 		
-		for(int i=0;i<4;i++)
-			this.add(players[i].getDeck());
 		this.add(gameDeck);
 		this.add(binDeck);
 		this.add(validate);
@@ -93,7 +92,7 @@ public class BoardGame extends JPanel
 
 				if(getActualPlayer().getDeck().getLength() == 0) {
 					getActualPlayer().setFinish(nextRank++);
-					if(nextRank == 4) {
+					if(nextRank == players.length) {
 						changeTurn();
 						getActualPlayer().setFinish(nextRank);
 						window.setRankingView(players);
@@ -115,19 +114,16 @@ public class BoardGame extends JPanel
 		
 	}
 
-	@Override
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		BufferedImage backImg = null;
-		try {
-			backImg = ImageIO.read(new File(RESOURCES_FOLDER+"uno_background.jpg"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		if(backImg != null)
-			g.drawImage(backImg, 0, 0, getWidth(), getHeight(), null);
+	public void setupPlayers(Player[] players) {
+		if(players == null)
+			return;
+		this.players = players;
+		for(Player p : players)
+			this.add(p.getDeck());
+		playTurn.setText(getActualPlayer().getName());
+		playTurn.setForeground(Color.WHITE);
 	}
-	
+
 	public void dropCard()
 	{
 		if(getActualPlayer().canPlay())
@@ -345,9 +341,9 @@ public class BoardGame extends JPanel
 		}
 
 		PLAY_TURN += sens;
-		PLAY_TURN %= 4;
+		PLAY_TURN %= players.length;
 		if(PLAY_TURN < 0)
-			PLAY_TURN += 4;
+			PLAY_TURN += players.length;
 		
 		player = getActualPlayer();
 		if(player.isPlayer() && !force)
@@ -363,7 +359,7 @@ public class BoardGame extends JPanel
 			return;
 		}
 
-		playTurn.setText("Player : "+PLAY_TURN);
+		playTurn.setText(getActualPlayer().getName());
 	}
 	
 	public boolean hasCard(Player player, String type) {

@@ -56,7 +56,7 @@ public class Card extends JPanel
 			
 			public void mouseReleased(MouseEvent e)
 			{
-				if(position == 0) // Ce code ne s'execute donc que pour les cartes du joueur. Pas pour les bots.
+				if(visible) // Ce code ne s'execute donc que pour les cartes du joueur. Pas pour les bots.
 				{
 					if(!up)
 					{
@@ -69,6 +69,7 @@ public class Card extends JPanel
 						up = false;
 					}
 				}
+				
 			}
 			
 			public void mouseEntered(MouseEvent e) {
@@ -91,17 +92,14 @@ public class Card extends JPanel
 		else
 			image = getBufferedImage(getBackCard(), BufferedImage.TRANSLUCENT);
 		
-		if(position != 0)
-		{			
-			for(int i=0;i<position;i++)
-				image = rotate(image, 90);
+		for(int i=0;i<position;i++)
+			image = rotate(image, 90);
 			
-			if(position % 2 != 0)
-			{
-				w = HEIGHT;
-				h = WIDTH;
-				this.setSize(w, h);
-			}
+		if(position % 2 != 0)
+		{
+			w = HEIGHT;
+			h = WIDTH;
+			this.setSize(w, h);
 		}
 		
 		g.drawImage(image, 0, 0, w, h, null);
