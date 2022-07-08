@@ -8,7 +8,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 public class Card extends JPanel
@@ -134,7 +133,7 @@ public class Card extends JPanel
 	
 	public static Image getBackCard()
 	{
-		return new ImageIcon(BoardGame.RESOURCES_FOLDER+"cards/backCard.png").getImage();
+		return Window.getImage("cards/backCard.png");
 	}
 	
 	public void setCardVisible(boolean bool)

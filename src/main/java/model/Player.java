@@ -98,4 +98,9 @@ public class Player
 		return rank;
 	}
 
+	public static void resetPlayerNumbers()
+	{
+		nextNb = 1;
+	}
+
 }

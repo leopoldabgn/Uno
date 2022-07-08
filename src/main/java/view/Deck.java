@@ -6,7 +6,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 public class Deck extends JPanel
@@ -199,8 +198,7 @@ public class Deck extends JPanel
 		{
 			for(int i=0;i<10;i++)
 			{
-				cards[j*10+i] = new Card(new ImageIcon(BoardGame.RESOURCES_FOLDER+"cards/"+colors[j]+"_"+i+".png").getImage(), 
-									colors[j].charAt(0), i);
+				cards[j*10+i] = new Card(Window.getImage("cards/"+colors[j]+"_"+i+".png"), colors[j].charAt(0), i);
 			}
 		}
 		
@@ -208,13 +206,13 @@ public class Deck extends JPanel
 		{
 			for(int i=0;i<3;i++)
 			{
-				cards[40+j*3+i] = new Card(new ImageIcon(BoardGame.RESOURCES_FOLDER+"cards/"+colors[j]+"_"+specials[i]+".png").getImage(), 
+				cards[40+j*3+i] = new Card(Window.getImage("cards/"+colors[j]+"_"+specials[i]+".png"),
 									specials[i], colors[j].charAt(0));
 			}
 		}
 		/*
 		for(int i=52;i<cards.length;i++) {
-			cards[i] = new Card(new ImageIcon(BoardGame.RESOURCES_FOLDER+"cards/+4.png").getImage(), "+4", (char)0);
+			cards[i] = new Card(Window.getImage("cards/+4.png"), "+4", (char)0);
 		}
 		*/
 		return cards;

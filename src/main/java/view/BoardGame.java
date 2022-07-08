@@ -17,7 +17,6 @@ import model.Player;
 public class BoardGame extends JPanel
 {
 	private static final long serialVersionUID = 1L;
-	public static String RESOURCES_FOLDER = "src/resources/";
 
 	private Window window;
 

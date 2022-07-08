@@ -5,12 +5,11 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.image.BufferedImage;
+import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -22,7 +21,7 @@ public class Window extends JFrame
 	private static final long serialVersionUID = 1L;
 	
 	private MainPanel mainPan;
-	private BoardGame boardGame;
+	//private BoardGame boardGame;
 
 	public Window(int w, int h)
 	{
@@ -112,12 +111,10 @@ public class Window extends JFrame
 
 	private class MainPanel extends JPanel {
 
-		private BufferedImage backImg;
+		private Image backImg;
 
 		public MainPanel() {
-			try {
-				backImg = ImageIO.read(new File(BoardGame.RESOURCES_FOLDER+"uno_menu_background.jpg"));
-			} catch (IOException e) {e.printStackTrace();}
+			backImg = getImage("uno_menu_background.jpg");
 		}
 		
 		@Override
@@ -128,11 +125,28 @@ public class Window extends JFrame
 		}
 
 		public void changeImage(String name) {
-			try {
-				backImg = ImageIO.read(new File(BoardGame.RESOURCES_FOLDER+name));
-			} catch (IOException e) {e.printStackTrace();}
+			backImg = getImage(name);
 		} 
 
+	}
+
+	public static Image getImage(final String pathAndFileName) {
+		/*
+		final URL url = Thread.currentThread().getContextClassLoader().getResource(pathAndFileName);
+		return Toolkit.getDefaultToolkit().getImage(url);
+		*/
+		
+		//return new ImageIcon("src/main/resources/"+pathAndFileName).getImage();
+		Image img = null;
+		try {
+			img = ImageIO.read(new File("resources/"+pathAndFileName));
+		} catch (IOException e) {
+			try {
+				img = ImageIO.read(new File("src/main/resources/"+pathAndFileName));
+			} catch (IOException e1) {}
+		}
+		
+		return img;
 	}
 
 }

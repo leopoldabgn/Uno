@@ -55,6 +55,7 @@ public class RankingView extends JPanel {
         JButton menu = new JButton("Menu");
         menu.setPreferredSize(new Dimension(150, 30));
         menu.addActionListener(e -> {
+            Player.resetPlayerNumbers();
             window.setHomeView();
         });
 

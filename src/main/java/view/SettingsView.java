@@ -85,14 +85,19 @@ public class SettingsView extends JPanel {
         ia.add(nbIA, BorderLayout.SOUTH);
         ia.setOpaque(false);
 
+        JPanel speedPan = new JPanel();
+        speedPan.setOpaque(false);
         JSlider AISpeed = new JSlider(1, 1000, 1000);
         AISpeed.setOpaque(false);
         AISpeed.setMajorTickSpacing(999);
         AISpeed.setPaintLabels(true);
+        speedPan.setLayout(new BorderLayout());
+        speedPan.add(new JLabel("AI Speed"), BorderLayout.NORTH);
+        speedPan.add(AISpeed, BorderLayout.SOUTH);
 
         add(joueurs);
         add(ia);
-        add(AISpeed);
+        add(speedPan);
         add(names);
         add(buttons);
 
